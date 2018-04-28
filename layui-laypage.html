@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="lib/layui/css/layui.css"  media="all">
+  <style>
+    body {
+      padding: 30px;
+    }
+    #dataList {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #999;
+    }
+    #dataList li {
+      margin-bottom: 10px;
+      border-bottom: 1px dotted #ccc;
+    }
+    #dataList li:last-of-type {
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="dataList"><ul></ul></div>
+  <div id="pagination"></div>
+
+  <script src="lib/layui/layui.min.js"></script>
+  <script src="lib/jquery-1.12.3.min.js"></script>
+  <script>
+
+    $(function() {
+      // 请求
+      getAllGirls(1, 10);
+
+    });
+
+    // ------------------ function ------------------
+
+    /**
+    * 说明: layui-v2.2.6 MIT
+    * 1. layui 是一个前端UI框架和丰富的组件库, laypage 是其中一个分页模块;
+    * 2. layui 依赖 jQuery, 需引入 jQuery, 但不分引入前后顺序;
+    * 3. 本例仅使用 layui 的分页功能, 版本为: layui-v2.2.6 MIT License By https://www.layui.com;
+    * 4. 本例用到 layui 样式, 需引入 font 字体文件, 目录结构参考本 demo 项目,
+    *    仅使用分页, 剔除了其他功能的文件, 如需用到其他功能, 请参考官方文档, 自行引入相应文件.
+    *
+    */
+
+    // 请求数据 fn
+    function getAllGirls(pageNum, pageSize) {
+      $.ajax({
+        type: 'POST',
+        url: 'http://localhost:8080/girls/queryAllGirls',
+        data: JSON.stringify({'pageNum': pageNum,'pageSize': pageSize}),
+        async: true,
+        dataType: 'json',
+        contentType: 'application/json; charset=UTF-8'
+      }).fail(function(err) {
+        console.log('request-error: ', err);
+      }).success(function(data) {
+        // console.log('request-result: ', data);
+        var html = '';
+        $.each(data.allGirls, function(i, item) {
+          html += "<li>id: "+ item.id +
+              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age: "+ item.age +
+              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cup: "+ item.cup +
+              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: "+ item.name +
+              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grade: " + item.grade +
+            "</li>";
+        })
+        $('#dataList ul').html(html);
+        paging(pageNum, pageSize, data, getAllGirls);
+      });
+    }
+
+    // 分页函数封装
+    function paging(curr, size, data, callback) {
+      layui.use(['laypage', 'layer'], function() {
+        var laypage = layui.laypage, layer = layui.layer;
+        laypage.render({
+          elem: 'pagination',
+          count: data.totalCount,
+          curr: curr,
+          limit: size,
+          limits: [10, 20, 30],
+          groups: 3,
+          first: '首页',
+          last: '尾页',
+          prev: '<i class="layui-icon">&#58883;</i>',
+          next: '<i class="layui-icon">&#58882;</i>',
+          layout: ['prev', 'page', 'next', 'skip', 'limit', 'limits', 'count'],
+          jump: function(obj, first) {
+            if (!first) {
+              callback(obj.curr, obj.limit);
+            }
+          }
+        });
+      })
+    }
+  </script>
+
+</body>
+</html>
