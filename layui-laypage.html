@@ -9,26 +9,38 @@
   <link rel="stylesheet" href="lib/layui/css/layui.css"  media="all">
   <style>
     body {
-      padding: 30px;
+      padding: 20px;
     }
-    #dataList {
-      margin-bottom: 30px;
-      border-bottom: 1px solid #999;
+    .table_wrapper {
+      width: 100%;
+      min-height: 400px;
+      border: 1px solid #3071a9;
     }
-    #dataList li {
-      margin-bottom: 10px;
-      border-bottom: 1px dotted #ccc;
+    .layui-table {
+      margin: 0;
     }
-    #dataList li:last-of-type {
-      margin-bottom: 0;
-      border-bottom: none;
+    #pagination {
+      text-align: right;
     }
   </style>
 
 </head>
 <body>
 
-  <div id="dataList"><ul></ul></div>
+  <div class="table_wrapper">
+    <table class="layui-table">
+      <thead>
+        <tr>
+          <th>id</th>
+            <th>name</th>
+            <th>cup</th>
+            <th>age</th>
+            <th>grade</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <div id="pagination"></div>
 
   <script src="lib/layui/layui.min.js"></script>
@@ -46,10 +58,11 @@
     /**
     * 说明: layui-v2.2.6 MIT
     * 1. layui 是一个前端UI框架和丰富的组件库, laypage 是其中一个分页模块;
-    * 2. layui 依赖 jQuery, 需引入 jQuery, 但不分引入前后顺序;
-    * 3. 本例仅使用 layui 的分页功能, 版本为: layui-v2.2.6 MIT License By https://www.layui.com;
+    * 2. layui 依赖 jQuery, 需引入 jQuery, 但引入不分前后顺序;
+    * 3. 本例仅使用 layui 的分页功能和不分样式, 版本号: layui-v2.2.6 MIT;
     * 4. 本例用到 layui 样式, 需引入 font 字体文件, 目录结构参考本 demo 项目,
-    *    仅使用分页, 剔除了其他功能的文件, 如需用到其他功能, 请参考官方文档, 自行引入相应文件.
+    *    仅使用分页, 剔除了其他功能的文件, 如需用到其他功能, 请参考官方文档, 自行引入相应文件;
+    * 5. layui.use 方法第一个参数是依赖的模块, 如果依赖多个模块, 其参数为数组形式.
     *
     */
 
@@ -63,36 +76,37 @@
         dataType: 'json',
         contentType: 'application/json; charset=UTF-8'
       }).fail(function(err) {
-        console.log('request-error: ', err);
+        console.log('getAllGirls-request-error: ', err);
       }).success(function(data) {
-        // console.log('request-result: ', data);
+        // console.log('getAllGirls-request-result: ', data);
         var html = '';
         $.each(data.allGirls, function(i, item) {
-          html += "<li>id: "+ item.id +
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age: "+ item.age +
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cup: "+ item.cup +
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: "+ item.name +
-              "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grade: " + item.grade +
-            "</li>";
+          html += "<tr>"+
+              "<td>"+ item.id +"</td>"+
+              "<td>"+ item.name +"</td>"+
+              "<td>"+ item.cup +"</td>"+
+              "<td>"+ item.age +"</td>"+
+              "<td>"+ item.grade +"</td>"+
+          "</tr>";
         })
-        $('#dataList ul').html(html);
+        $('.layui-table tbody').html(html);
         paging(pageNum, pageSize, data, getAllGirls);
       });
     }
 
-    // 分页函数封装
+    // 分页函数
     function paging(curr, size, data, callback) {
-      layui.use(['laypage', 'layer'], function() {
-        var laypage = layui.laypage, layer = layui.layer;
+      layui.use('laypage', function() {
+        var laypage = layui.laypage;
         laypage.render({
           elem: 'pagination',
           count: data.totalCount,
           curr: curr,
           limit: size,
           limits: [10, 20, 30],
-          groups: 3,
-          first: '首页',
-          last: '尾页',
+          groups: 2,
+          // first: '首页',
+          // last: '尾页',
           prev: '<i class="layui-icon">&#58883;</i>',
           next: '<i class="layui-icon">&#58882;</i>',
           layout: ['prev', 'page', 'next', 'skip', 'limit', 'limits', 'count'],
