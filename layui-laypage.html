@@ -33,9 +33,8 @@
         <tr>
           <th>id</th>
             <th>name</th>
-            <th>cup</th>
+            <th>gender</th>
             <th>age</th>
-            <th>grade</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -70,27 +69,26 @@
     function getAllGirls(pageNum, pageSize) {
       $.ajax({
         type: 'POST',
-        url: 'http://localhost:8080/girls/queryAllGirls',
-        data: JSON.stringify({'pageNum': pageNum,'pageSize': pageSize}),
+        url: 'http://localhost:8024/getUsers',
+        data: JSON.stringify({'page': pageNum,'per_page': pageSize}),
         async: true,
         dataType: 'json',
         contentType: 'application/json; charset=UTF-8'
       }).fail(function(err) {
         console.log('getAllGirls-request-error: ', err);
-      }).success(function(data) {
-        // console.log('getAllGirls-request-result: ', data);
+      }).success(function(res) {
+        // console.log('users-request-result: ', res);
         var html = '';
-        $.each(data.allGirls, function(i, item) {
+        $.each(res.data, function(i, item) {
           html += "<tr>"+
               "<td>"+ item.id +"</td>"+
               "<td>"+ item.name +"</td>"+
-              "<td>"+ item.cup +"</td>"+
+              "<td>"+ item.gender +"</td>"+
               "<td>"+ item.age +"</td>"+
-              "<td>"+ item.grade +"</td>"+
           "</tr>";
         })
         $('.layui-table tbody').html(html);
-        paging(pageNum, pageSize, data, getAllGirls);
+        paging(pageNum, pageSize, res, getAllGirls);
       });
     }
 
@@ -100,7 +98,7 @@
         var laypage = layui.laypage;
         laypage.render({
           elem: 'pagination',
-          count: data.totalCount,
+          count: data.totalRecords,
           curr: curr,
           limit: size,
           limits: [10, 20, 30],
